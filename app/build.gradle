@@ -17,7 +17,7 @@ android {
         versionCode Releases.versionCode
         versionName Releases.versionName
 
-        testInstrumentationRunner "com.kaustavjaiswal.flickrsample.customRunner.MyTestRunner"
+        testInstrumentationRunner "com.kaustavjaiswal.omdbsampleapp.customRunner.MyTestRunner"
     }
 
     buildTypes {
