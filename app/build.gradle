@@ -1,20 +1,23 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.0"
+    compileSdkVersion DefaultConfig.compileSdk
+    buildToolsVersion AndroidConfiguration.buildToolsVersion
 
     defaultConfig {
         applicationId "com.kaustavjaiswal.omdbsampleapp"
-        minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion DefaultConfig.minSdk
+        targetSdkVersion DefaultConfig.targetSdk
+        versionCode Releases.versionCode
+        versionName Releases.versionName
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.kaustavjaiswal.flickrsample.customRunner.MyTestRunner"
     }
 
     buildTypes {
@@ -23,22 +26,90 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    viewBinding {
+        enabled = true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 }
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.1'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.2.0'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //Standard
+    implementation Dependencies.kotlin
+    implementation Dependencies.coreKtx
+    implementation Dependencies.appcompat
+    implementation Dependencies.material
+    implementation Dependencies.cardview
+    implementation Dependencies.constraintLayout
+    implementation Dependencies.activityKtx
+
+    //LiveData
+    implementation Dependencies.lifecycleLiveDataKtx
+    implementation Dependencies.lifecycleViewModelKtx
+
+    //Database
+    implementation Dependencies.room
+    implementation Dependencies.roomKtx
+    kapt Dependencies.roomCompiler
+
+    //Dagger
+    implementation Dependencies.hiltAndroid
+    implementation Dependencies.hiltViewModel
+    kapt Dependencies.daggerCompiler
+    kapt Dependencies.hiltCompiler
+
+    //Paging 3.0-Alpha
+    implementation Dependencies.paging
+
+    //Networking
+    implementation Dependencies.retrofit
+    implementation Dependencies.okhttp
+    implementation Dependencies.moshiKotlin
+    implementation Dependencies.okhttpLoggingInterceptor
+    implementation Dependencies.converterMoshi
+    kapt Dependencies.moshiKotlinCodegen
+
+    //Image Library
+    implementation Dependencies.glide
+    annotationProcessor Dependencies.glideCompiler
+
+    //Logging
+    implementation Dependencies.timber
+
+    //Lottie
+    implementation Dependencies.lottie
+
+    testImplementation Dependencies.junit
+    testImplementation Dependencies.mockitoKotlin
+    testImplementation Dependencies.mockWebServer
+    testImplementation Dependencies.mockitoCore
+    testImplementation Dependencies.mockitoAndroid
+    testImplementation Dependencies.archCoreTesting
+    testImplementation Dependencies.coroutinesTest
+    // For Robolectric tests.
+    testImplementation Dependencies.hiltTest
+    // ...with Kotlin.
+    kaptTest Dependencies.hiltCompiler
+
+    androidTestImplementation Dependencies.espressso
+    androidTestImplementation Dependencies.mockitoKotlin
+    androidTestImplementation Dependencies.mockitoCore
+    androidTestImplementation Dependencies.mockitoAndroid
+    androidTestImplementation Dependencies.archCoreTesting
+    androidTestImplementation Dependencies.testCoreKtx
+    androidTestImplementation Dependencies.testJunitKtx
+    // For Robolectric tests.
+    androidTestImplementation Dependencies.hiltTest
+    // ...with Kotlin.
+    kaptAndroidTest Dependencies.hiltCompiler
 }
