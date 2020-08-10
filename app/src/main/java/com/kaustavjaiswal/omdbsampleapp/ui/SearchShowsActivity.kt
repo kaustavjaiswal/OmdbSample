@@ -38,7 +38,6 @@ class SearchShowsActivity : AppCompatActivity() {
     private val adapter = ShowsAdapter()
     private var searchJob: Job? = null
     private var connected = false
-    private var reportedFailure = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +62,6 @@ class SearchShowsActivity : AppCompatActivity() {
                 this.connected = connectionStatus
                 if (connected.not()) {
                     setInternetError()
-                    viewModel.forceRefresh = false
                 } else {
                     setConnectionEstablished()
                 }
@@ -118,20 +116,17 @@ class SearchShowsActivity : AppCompatActivity() {
     private fun initSearch(query: String) {
         binding.searchOmdb.setText(query)
         binding.inputLayout.setEndIconOnClickListener {
-            checkForLastReportedFailure()
             updateShows()
         }
         binding.searchOmdb.doAfterTextChanged {
             lifecycleScope.launch {
                 delay(300)  //debounce timeOut
-                checkForLastReportedFailure()
                 updateShows(false)
             }
         }
         binding.searchOmdb.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 binding.searchOmdb.clearFocus()
-                checkForLastReportedFailure()
                 updateShows()
                 true
             } else {
@@ -141,7 +136,6 @@ class SearchShowsActivity : AppCompatActivity() {
         binding.searchOmdb.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 binding.searchOmdb.clearFocus()
-                checkForLastReportedFailure()
                 updateShows()
                 true
             } else {
@@ -193,13 +187,6 @@ class SearchShowsActivity : AppCompatActivity() {
         binding.progressBar.isVisible = true
         binding.retryButton.isVisible = false
         binding.animationView.isVisible = false
-    }
-
-    private fun checkForLastReportedFailure() {
-/*        if (reportedFailure) {
-            viewModel.forceRefresh = true
-            reportedFailure = false
-        }*/
     }
 
     private fun connectionToast() {
