@@ -26,6 +26,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @InternalCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -84,27 +85,20 @@ class SearchShowsActivity : AppCompatActivity() {
     private fun initAdapter() {
         binding.list.layoutManager = GridLayoutManager(this, 2)
         adapter.addLoadStateListener { loadState ->
-            //Timber.d(loadState.toString())
-            when (loadState.refresh) {
-                is LoadState.NotLoading, is LoadState.Error -> {
-                    displayRecyclerViewDataIfAvailable()
+            if (loadState.refresh is LoadState.Loading) {
+                handleLoadingScenario()
+            } else {
+                displayRecyclerViewDataIfAvailable()
+                // getting the error
+                val error = when {
+                    loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
+                    loadState.append is LoadState.Error -> loadState.append as LoadState.Error
+                    loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
+                    else -> null
                 }
-                is LoadState.Loading -> {
-                    if (connected) {
-                        handleLoadingScenario()
-                    } else {
-                        displayRecyclerViewDataIfAvailable()
-                    }
+                error?.let {
+                    Timber.e(error.toString())
                 }
-            }
-            // Toast on any error
-            val errorState =
-                loadState.source.append as? LoadState.Error
-                    ?: loadState.source.prepend as? LoadState.Error
-                    ?: loadState.append as? LoadState.Error
-                    ?: loadState.prepend as? LoadState.Error
-            errorState?.let {
-                reportedFailure = true
             }
         }
         binding.list.adapter = adapter
@@ -202,10 +196,10 @@ class SearchShowsActivity : AppCompatActivity() {
     }
 
     private fun checkForLastReportedFailure() {
-        if (reportedFailure) {
+/*        if (reportedFailure) {
             viewModel.forceRefresh = true
             reportedFailure = false
-        }
+        }*/
     }
 
     private fun connectionToast() {
